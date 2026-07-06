@@ -163,7 +163,7 @@ class PipelineRequest(BaseModel):
     model: Optional[str] = Field(None, description="Ollama model name")
  
 class GenerateResponse(BaseModel):
-    topic: List[TopicItem]
+    topics: List[TopicItem]
  
 class OllamaStatus(BaseModel):
     connected: bool
@@ -294,8 +294,8 @@ async def generate(req: GenerateRequest):
     raw_list = _extract_json_array(reply)
     if not raw_list:
         raise HTTPException(422, f"Model did not return a valid JSON array. Raw: {reply[:400]}")
-    topics = [normalize_topic(t) for t in raw_list]
-    return GenerateResponse(topic=[TopicItem(**t) for t in topics if t])
+    topicsNormalized = [normalize_topic(t) for t in raw_list]
+    return GenerateResponse(topics=[TopicItem(**t) for t in topicsNormalized if t])
 
 @app.post("/generate-post", response_model=str, tags=["2 · Full Pipeline"])
 async def pipeline(req: PipelineRequest):
